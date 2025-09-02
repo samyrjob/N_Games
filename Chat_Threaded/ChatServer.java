@@ -1,5 +1,6 @@
 package Chat_Threaded;
 
+
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -22,7 +23,7 @@ public class ChatServer {
                 System.out.println("Waiting for a client");
                 clientSocket = serverSocket.accept();
                 // spawn a new chat server handler thread
-                new ChatServerHandler(clientSocker, cg).start();
+                new ChatServerHandler(clientSocket, cg).start();
             }
         }
         catch(Exception e)
