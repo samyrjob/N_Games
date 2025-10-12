@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public class NVEClient extends JFrame {
+    private static final int PORT = 5555;  // Add this line
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
