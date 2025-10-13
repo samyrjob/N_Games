@@ -2,6 +2,8 @@ package NVEGame;
 
 import java.io.*;
 import java.net.*;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -139,8 +141,11 @@ class ClientHandler implements Runnable {
                     String[] parts = message.split(" ");
                     if (parts.length >= 4) {
                         username = parts[1];
-                        double x = Double.parseDouble(parts[2]);
-                        double y = Double.parseDouble(parts[3]);
+                        // double x = Double.parseDouble(parts[2]);;
+                        NumberFormat nf = NumberFormat.getInstance(Locale.FRANCE);
+                        double x = nf.parse(parts[2]).doubleValue();
+                        double y  = nf.parse(parts[3]).doubleValue();
+                        // double y = Double.parseDouble(parts[3]);
                         server.addClient(username, this, x, y);
                         break;
                     }
@@ -161,7 +166,7 @@ class ClientHandler implements Runnable {
                     break;
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | ParseException e) {
             System.out.println("Client handler error: " + e.getMessage());
         } finally {
             if (username != null) {

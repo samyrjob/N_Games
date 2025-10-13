@@ -6,6 +6,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -128,7 +130,7 @@ public class NVEClient extends JFrame {
             myX = newX;
             myY = newY;
             if (out != null) {
-                 String moveMsg = String.format("MOVE %.2f %.2f", myX, myY);
+                 String moveMsg = String.format(Locale.US, "MOVE %.2f %.2f", myX, myY);
                     out.println(moveMsg);                                         
                     System.out.println("Sent: " + moveMsg); // DEBUG
             }
@@ -236,29 +238,69 @@ public void addUser(String username, double x, double y) {
         private void processServerMessage(String message) {
     String[] parts = message.split(" ");
     
-    if (parts[0].equals("USERLIST")) {
-        // Clear existing users
-        otherUsers.clear();
+    // if (parts[0].equals("USERLIST")) {
+    //     // Clear existing users
+    //     otherUsers.clear();
         
-        // Parse user list: USERLIST user1 x1 y1 user2 x2 y2 ...
-        for (int i = 1; i < parts.length; i += 3) {
-            if (i + 2 < parts.length) {
+    //     // Parse user list: USERLIST user1 x1 y1 user2 x2 y2 ...
+    //     for (int i = 1; i < parts.length; i += 3) {
+    //         if (i + 2 < parts.length) {
+    //             String user = parts[i];
+    //             double x = Double.parseDouble(parts[i + 1]);
+    //             double y = Double.parseDouble(parts[i + 2]);
+    //             if (!user.equals(username)) {
+    //                 // FIX: Actually call addUser to create the avatar
+    //                 addUser(user, x, y);
+    //             }
+    //         }
+    //     }
+    //     updateUserList();
+        
+    // }
+
+    if (parts[0].equals("USERLIST")) {
+    for (int i = 1; i < parts.length; i += 3) {
+        if (i + 2 < parts.length) {
+
+            try {
                 String user = parts[i];
-                double x = Double.parseDouble(parts[i + 1]);
-                double y = Double.parseDouble(parts[i + 2]);
+                NumberFormat nf = NumberFormat.getInstance(Locale.FRANCE);
+                double x = nf.parse(parts[i+1]).doubleValue();
+                double y = nf.parse(parts[i+2]).doubleValue();
+                // double x = Double.parseDouble(parts[i + 1]);
+                // double y = Double.parseDouble(parts[i + 2]);
                 if (!user.equals(username)) {
-                    // FIX: Actually call addUser to create the avatar
-                    addUser(user, x, y);
+                    otherUsers.putIfAbsent(user, new UserAvatar(user, x, y));
                 }
+
+            }
+            catch (ParseException e){
+
             }
         }
-        updateUserList();
-        
-    } else if (parts[0].equals("POSITION")) {
-        String user = parts[1];
-        double x = Double.parseDouble(parts[2]);
-        double y = Double.parseDouble(parts[3]);
-        updateUserPosition(user, x, y);
+    }
+    updateUserList();
+    worldPanel.repaint();
+}
+    
+    
+    
+    
+    else if (parts[0].equals("POSITION")) {
+
+        try {
+
+            String user = parts[1];
+            NumberFormat nf = NumberFormat.getInstance(Locale.FRANCE);
+            double x = nf.parse(parts[2]).doubleValue();
+            double y = nf.parse(parts[3]).doubleValue();
+            // double x = Double.parseDouble(parts[2]);
+            // double y = Double.parseDouble(parts[3]);
+            updateUserPosition(user, x, y);
+        }
+         catch (ParseException e){
+
+            }
         
     } else if (parts[0].equals("CHAT")) {
         String sender = parts[1];
