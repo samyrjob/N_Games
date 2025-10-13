@@ -3,8 +3,8 @@ package NVEGame;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.*;
+import java.awt.image.BufferedImage;
 import java.util.*;
-import java.awt.image.BufferedImage;  // Add this import
 
 public class WorldPanel extends JPanel {
     private NVEClient client;
@@ -54,13 +54,19 @@ public class WorldPanel extends JPanel {
         // Draw background
         g2d.drawImage(background, 0, 0, this);
         
-        // Draw other users
-        for (UserAvatar avatar : client.getOtherUsers().values()) {
-            drawAvatar(g2d, avatar.x, avatar.y, avatar.username, Color.BLUE);
+        // Draw other users (with null check)
+        if (client.getOtherUsers() != null) {
+            for (UserAvatar avatar : client.getOtherUsers().values()) {
+                if (avatar != null && avatar.username != null) {
+                    drawAvatar(g2d, avatar.x, avatar.y, avatar.username, Color.BLUE);
+                }
+            }
         }
         
-        // Draw current user
-        drawAvatar(g2d, client.getMyX(), client.getMyY(), client.getMyUsername(), Color.GREEN);
+        // Draw current user (with null check)
+        if (client.getMyUsername() != null) {
+            drawAvatar(g2d, client.getMyX(), client.getMyY(), client.getMyUsername(), Color.GREEN);
+        }
         
         // Draw legend
         g2d.setColor(Color.BLACK);
@@ -68,6 +74,11 @@ public class WorldPanel extends JPanel {
     }
     
     private void drawAvatar(Graphics2D g2d, double x, double y, String name, Color color) {
+        // Safety check for null name
+        if (name == null) {
+            name = "Unknown";
+        }
+        
         // Draw avatar body
         g2d.setColor(color);
         g2d.fill(new Ellipse2D.Double(x - 15, y - 15, 30, 30));

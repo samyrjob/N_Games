@@ -39,8 +39,22 @@ public class NVEServer {
     public synchronized void addClient(String username, ClientHandler client, double x, double y) {
         clients.put(username, client);
         userInfo.put(username, new UserInfo(username, x, y));
+        
+        // FIX: Immediately send the current user list to the new client
+        sendUserListToClient(client);
+        
         broadcastUserList();
         broadcastMessage("SYSTEM", username + " joined the world");
+    }
+
+    // Add this new method to NVEServer:
+    private void sendUserListToClient(ClientHandler client) {
+        StringBuilder userList = new StringBuilder("USERLIST");
+        for (String username : userInfo.keySet()) {
+            UserInfo info = userInfo.get(username);
+            userList.append(String.format(" %s %.2f %.2f", username, info.x, info.y));
+        }
+        client.sendMessage(userList.toString());
     }
     
     public synchronized void removeClient(String username) {
